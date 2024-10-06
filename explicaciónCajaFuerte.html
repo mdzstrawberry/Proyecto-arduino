@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicación del Código Arduino</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8bbd0;  /* Color rosado claro */
+            color: #880e4f;  /* Texto en rosado oscuro */
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #ad1457;
+        }
+        pre {
+            background-color: #fce4ec; /* Fondo rosado para el bloque de código */
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #ad1457;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: right;  /* Alinear a la derecha */
+            font-style: italic;
+            color: #6a1b9a; /* Rosado oscuro */
+        }
+    </style>
+</head>
+<body>
+    <h1>Control de Caja Fuerte con Arduino</h1>
+
+    <div class="section">
+        <h2>Código Arduino</h2>
+        <p>A continuación se muestra el código utilizado para controlar una caja fuerte utilizando botones, un servo motor, y un LED indicador.</p>
+        <pre>
+#define BUTTON_1 2   // Botón conectado al pin 2
+#define BUTTON_2 3   // Botón conectado al pin 3
+#define BUTTON_3 4   // Botón conectado al pin 4
+#define BUTTON_4 5   // Botón conectado al pin 5
+#define PIEZO 11
+#define LED 13
+
+#include &lt;Servo.h&gt;
+Servo servoMotor;
+
+bool isUnlocked = false;  // Variable para saber si la caja está desbloqueada
+
+void setup() {
+  // Configuramos los pines como entradas con resistencias pull-up
+  pinMode(BUTTON_1, INPUT_PULLUP);
+  pinMode(BUTTON_2, INPUT_PULLUP);
+  pinMode(BUTTON_3, INPUT_PULLUP);
+  pinMode(BUTTON_4, INPUT_PULLUP);
+  
+  // LED y servo
+  pinMode(LED, OUTPUT);
+  servoMotor.attach(9);  // Pin 9 para el servo motor
+  
+  // Inicialización
+  Serial.begin(9600);
+  Serial.println("Caja Fuerte Iniciada");
+}
+
+void loop() {
+  // Verificar si la caja fuerte está desbloqueada
+  if (digitalRead(BUTTON_1) == LOW && digitalRead(BUTTON_2) == LOW) {
+    isUnlocked = true;  // Se desbloquea
+    digitalWrite(LED, HIGH);  // Indica con el LED que se ha desbloqueado
+    tone(PIEZO, 1000, 200);   // Tono de desbloqueo
+    Serial.println("Caja desbloqueada");
+    delay(500);  // Pequeño retardo para evitar lecturas múltiples
+    digitalWrite(LED, LOW);
+  }
+
+  // Si está desbloqueado, permite usar los botones 3 y 4
+  if (isUnlocked) {
+    if (digitalRead(BUTTON_3) == LOW) {
+      // Botón 3 para abrir (mueve el servo a 0°)
+      servoMotor.write(0);
+      Serial.println("Caja abierta");
+      tone(PIEZO, 500, 200);  // Tono para abrir
+      delay(500);
+    }
+    
+    if (digitalRead(BUTTON_4) == LOW) {
+      // Botón 4 para cerrar (mueve el servo a 90° en lugar de 180°)
+      servoMotor.write(90);
+      Serial.println("Caja cerrada");
+      tone(PIEZO, 250, 200);  // Tono para cerrar
+      delay(500);
+    }
+  }
+}
+        </pre>
+    </div>
+
+    <div class="section">
+        <h2>Explicación del Código</h2>
+        <p>El código controla una caja fuerte que utiliza botones para desbloquear, abrir, y cerrar la caja.</p>
+        <ul>
+            <li><strong>Botones:</strong> Se utilizan cuatro botones conectados a los pines 2, 3, 4 y 5. Los botones 1 y 2 desbloquean la caja cuando se presionan simultáneamente.</li>
+            <li><strong>Servo motor:</strong> El servo motor está conectado al pin 9 y se utiliza para abrir (mover a 0°) y cerrar (mover a 90°) la caja fuerte.</li>
+            <li><strong>LED:</strong> Indica cuando la caja está desbloqueada.</li>
+            <li><strong>Buzzer (Piezoeléctrico):</strong> Emite diferentes tonos para indicar la apertura, cierre o desbloqueo de la caja.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Conexión de los Componentes</h2>
+        <p>Para conectar los componentes a tu Arduino, sigue estas instrucciones:</p>
+        <ul>
+            <li><strong>Botones:</strong>
+                <ul>
+                    <li>Conecta el botón 1 al pin 2.</li>
+                    <li>Conecta el botón 2 al pin 3.</li>
+                    <li>Conecta el botón 3 al pin 4.</li>
+                    <li>Conecta el botón 4 al pin 5.</li>
+                    <li>Conecta el otro extremo de los botones a tierra (GND).</li>
+                </ul>
+            </li>
+            <li><strong>Servo Motor:</strong> Conecta el pin de señal del servo al pin 9, el pin de energía al pin 5V de la placa Arduino, y el pin de tierra (GND) al GND de la placa.</li>
+            <li><strong>LED:</strong> Conecta el LED al pin 13 (con una resistencia limitadora de corriente, alrededor de 220 ohmios) y el otro extremo a tierra.</li>
+            <li><strong>Buzzer (Piezoeléctrico):</strong> Conecta el buzzer al pin 11 y el otro extremo a tierra.</li>
+        </ul>
+        <p>El servo motor se moverá dependiendo de si la caja está desbloqueada y si los botones correctos se presionan para abrir o cerrar.</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; Programado por Yolanda Marynés Lix Umul, décimo grado</p>
+    </div>
+</body>
+</html>
